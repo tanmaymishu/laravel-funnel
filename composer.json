@@ -1,0 +1,26 @@
+{
+    "name": "tanmaymishu/laravel-funnel",
+    "description": "Create query filters easily.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tanmay Mishu",
+            "email": "tanmaymishu@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "TanmayMishu\\LaravelFunnel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TanmayMishu\\Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    }
+}
