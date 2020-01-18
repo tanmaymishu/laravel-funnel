@@ -21,6 +21,14 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^8.5",
+        "orchestra/testbench": "^4.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TanmayMishu\\LaravelFunnel\\FunnelServiceProvider"
+            ]
+        }
     }
 }
