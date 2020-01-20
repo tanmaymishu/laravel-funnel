@@ -1,0 +1,16 @@
+<?php
+
+namespace DummyNamespace;
+
+use TanmayMishu\LaravelFunnel\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
+class DummyFilter extends Filter
+{
+    protected $parameter = 'DummyParameter';
+
+    protected function apply(Builder $builder): Builder
+    {
+        return $builder->groupBy(request($this->parameter));
+    }
+}

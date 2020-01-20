@@ -1,0 +1,18 @@
+<?php
+
+namespace DummyNamespace;
+
+use TanmayMishu\LaravelFunnel\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
+class DummyFilter extends Filter
+{
+    protected $parameter = 'DummyParameter';
+    protected $operator = 'DummyOperator';
+
+    protected function apply(Builder $builder): Builder
+    {
+        $paramValue = $this->operator == 'LIKE' ? "%".request($this->parameter)."%" : request($this->parameter);
+        return $builder->where('DummyAttribute', 'DummyOperator', $paramValue);
+    }
+}
