@@ -47,6 +47,4 @@ class FilterCommandTest extends TestCase
         $output = trim(Artisan::output());
         $this->assertTrue('Filter created successfully.' == $output || 'Filter already exists!' == $output);
     }
-
-
 }
