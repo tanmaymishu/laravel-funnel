@@ -12,7 +12,15 @@ class DummyFilter extends Filter
 
     protected function apply(Builder $builder): Builder
     {
-        $paramValue = $this->operator == 'LIKE' ? "%".request($this->parameter)."%" : request($this->parameter);
-        return $builder->where('DummyAttribute', 'DummyOperator', $paramValue);
+        $paramValue = $this->getParamValue();
+
+        return $builder->where('DummyAttribute', $this->operator, $paramValue);
+    }
+
+    private function getParamValue()
+    {
+        return $this->operator == 'LIKE' || $this->operator == 'like'
+                    ? "%".request($this->parameter)."%"
+                    : request($this->parameter);
     }
 }

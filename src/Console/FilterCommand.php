@@ -140,8 +140,8 @@ class FilterCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['attribute', 'a', InputOption::VALUE_OPTIONAL, 'The attribute name of the model (e.g. is_active). Default: Snake-cased filter_class'],
-            ['parameter', 'p', InputOption::VALUE_OPTIONAL, 'The name of the request query parameter (e.g. active). Default: Snake-cased filter_class'],
+            ['attribute', 'a', InputOption::VALUE_OPTIONAL, 'The attribute name of the model (e.g. is_active). Default: Snake cased filter_class'],
+            ['parameter', 'p', InputOption::VALUE_OPTIONAL, 'The name of the request query parameter (e.g. active). Default: Snake cased filter_class'],
             ['operator', 'o', InputOption::VALUE_OPTIONAL, 'The operator for the WHERE clause (e.g. >, like, =, <). Default: ='],
             ['clause', 'c', InputOption::VALUE_OPTIONAL, 'The clause for the query (e.g. where, orderBy, groupBy). Default: where'],
         ];

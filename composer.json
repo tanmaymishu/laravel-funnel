@@ -1,6 +1,6 @@
 {
     "name": "tanmaymishu/laravel-funnel",
-    "description": "Create query filters easily.",
+    "description": "Generate and bind query filters.",
     "type": "library",
     "license": "MIT",
     "authors": [
