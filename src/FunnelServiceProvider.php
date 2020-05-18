@@ -18,6 +18,5 @@ class FunnelServiceProvider extends ServiceProvider
 
     public function register()
     {
-
     }
 }

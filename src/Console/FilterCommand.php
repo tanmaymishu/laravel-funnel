@@ -39,7 +39,7 @@ class FilterCommand extends GeneratorCommand
     {
         if ($this->option('clause') == 'orderBy') {
             return __DIR__.'/Stubs/filter-order-by.stub';
-        } else if ($this->option('clause') == 'groupBy') {
+        } elseif ($this->option('clause') == 'groupBy') {
             return __DIR__.'/Stubs/filter-group-by.stub';
         } else {
             return __DIR__.'/Stubs/filter-where.stub';
@@ -54,7 +54,7 @@ class FilterCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\Filters';
+        return $rootNamespace.'\Filters';
     }
 
     /**
@@ -146,5 +146,4 @@ class FilterCommand extends GeneratorCommand
             ['clause', 'c', InputOption::VALUE_OPTIONAL, 'The clause for the query (e.g. where, orderBy, groupBy). Default: where'],
         ];
     }
-
 }
