@@ -11,7 +11,6 @@ trait HasFilters
         return app(Pipeline::class)
             ->send(static::query())
             ->through((new static)->filters)
-            ->thenReturn()
-            ->get();
+            ->thenReturn();
     }
 }
