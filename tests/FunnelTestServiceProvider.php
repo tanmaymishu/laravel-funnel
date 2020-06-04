@@ -17,8 +17,8 @@ class FunnelTestServiceProvider extends ServiceProvider
             ]);
         }
 
-        Route::middleware('api')->group(function($router) {
-            $router->get('/posts', function() {
+        Route::middleware('api')->group(function ($router) {
+            $router->get('/posts', function () {
                 return response()->json(['posts' => Post::filtered()->get()]);
             });
         });
