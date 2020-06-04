@@ -1,26 +1,26 @@
 <?php
 
-namespace DummyNamespace;
+namespace TanmayMishu\Tests\Filters;
 
-use TanmayMishu\LaravelFunnel\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use TanmayMishu\LaravelFunnel\Filter;
 
-class DummyFilter extends Filter
+class Published extends Filter
 {
     /**
      * @var string
      */
-    protected $parameter = 'DummyParameter';
+    protected $parameter = 'published';
 
     /**
      * @var string
      */
-    protected $attribute = 'DummyAttribute';
+    protected $attribute = 'is_published';
 
     /**
      * @var string
      */
-    protected $operator = 'DummyOperator';
+    protected $operator = '=';
 
     /**
      * Prepare the builder. Customize this according to your need.

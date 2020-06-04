@@ -2,11 +2,17 @@
 
 namespace TanmayMishu\LaravelFunnel;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pipeline\Pipeline;
 
 trait HasFilters
 {
-    public static function filtered()
+    /**
+     * Run the filters.
+     *
+     * @return Builder
+     */
+    public static function filtered(): Builder
     {
         return app(Pipeline::class)
             ->send(static::query())
