@@ -2,7 +2,7 @@
 
 Filtering results based on the query strings/params passed through the URL is one of the common tasks of everyday web development.
 
-Laravel Funnel is an attempt to reduce this cognitive burden of stacking and applying the filters.
+Laravel Funnel is an attempt to reduce the cognitive burden of stacking and applying the filters.
 
 ## Installation
 
@@ -51,7 +51,8 @@ Then add the filter class in the `$filters` array. Example:
        ];
    }
 ```
-Step 3: From the controller, you may call `$posts = Post::filtered();` to get the filtered posts.
+Step 3: From the controller, you may call `$posts = Post::filtered();` to get the filtered posts. It returns an instance of Builder, allowing you to further chain the query:
+`Post::filtered()->with('comments')->get()`. You have to append `->get()` as you would normally do, to return the result as a collection.
 ### CLI Options
  - This package ships with a `funnel:filter` command. The following command will display all the details including the argument and option it accepts:
     ```php
@@ -72,7 +73,7 @@ Step 3: From the controller, you may call `$posts = Post::filtered();` to get th
     -o, --operator[=OPERATOR]    The operator for the WHERE clause (e.g. >, like, =, <). Default: =
     -c, --clause[=CLAUSE]        The clause for the query (e.g. where, orderBy, groupBy). Default: where
     ```
-- The `filter:funnel` command takes 1 _argument_ (the name of the filter class) and 4 _options_:
+- The `funnel:filter` command takes 1 _argument_ (the name of the filter class) and 4 _options_:
     1) Attribute (-a) of the model. If this option is not passed, the attribute will be the snake_cased version of the filter class name that was passed as the argument.
     2) Parameter (-p) or the query string name. Similar to the attribute, it will also use the snake_cased class name as default value, if no `-p` option is provided. 
     3) The operator (-o) for the where clause. The default is the basic `=` operator.

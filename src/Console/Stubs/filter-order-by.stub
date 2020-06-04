@@ -7,8 +7,17 @@ use Illuminate\Database\Eloquent\Builder;
 
 class DummyFilter extends Filter
 {
+    /**
+     * @var string
+     */
     protected $parameter = 'DummyParameter';
 
+    /**
+     * Prepare the builder. Customize this according to your need.
+     *
+     * @param  Builder  $builder
+     * @return Builder
+     */
     protected function apply(Builder $builder): Builder
     {
         return $builder->orderBy('DummyAttribute', request($this->parameter));
