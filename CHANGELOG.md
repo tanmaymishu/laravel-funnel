@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 ### Removed
 - N/A
+## [v0.1.2] - 2020-06-04
+### Added
+- Support for multi-valued GET params.
+- `getDefaultWhereBuilder()` method.
+### Changed
+- Base Filter class.
+### Removed
 ## [v0.1.1] - 2020-05-18
 ### Added
 - N/A
