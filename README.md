@@ -99,7 +99,12 @@ Step 3: From the controller, you may call `$posts = Post::filtered();` to get th
      ];
      ```
  - The final shape of the url: `http://example.com/posts?published=1&sort=desc&q=foobar`
- 
+ ### Multi-value GET parameters
+ - Laravel Funnel can understand multi-value GET parameters:
+ `http://example.com/posts?title[]=foo&title[]=bar`. You don't have to take any extra steps for that.
+ - As you can see, you will need to append the array notation `[]` to your query parameter's name.
+ - Laravel Funnel will pass the parameter values (foo & bar) through the `OR` sub-queries.
+ - A get request like `http://example.com/posts?title[]=foo&title[]=bar` will indicate that we want to fetch all the posts that has a title _foo_ or _bar_. How the parameter should match (exactly, or partially), depends on the `--operator` you've used during the filter creation. If you've used `like`, the parameter will match partially.
  ### Customization
  - If the generated `apply()` method of the filter class doesn't cover your need, you can always implement your own `apply()` method but it should match the signature of the parent class.
  
