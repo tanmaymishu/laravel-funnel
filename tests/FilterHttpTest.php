@@ -53,5 +53,4 @@ class FilterHttpTest extends TestCase
             'is_published' => 0,
         ]);
     }
-
 }

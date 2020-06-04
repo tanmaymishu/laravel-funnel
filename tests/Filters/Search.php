@@ -42,6 +42,7 @@ class Search extends Filter
                     }
                 }
             });
+
             return $builder;
         }
 
@@ -63,11 +64,12 @@ class Search extends Filter
             $params = array_map(function ($param) {
                 return '%'.$param.'%';
             }, $params);
+
             return $params;
         }
 
         return $this->operator == 'LIKE' || $this->operator == 'like'
-            ? "%".$params."%"
+            ? '%'.$params.'%'
             : $params;
     }
 }
