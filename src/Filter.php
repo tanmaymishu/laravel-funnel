@@ -15,7 +15,7 @@ abstract class Filter
      */
     public function handle($passable, \Closure $next)
     {
-        if (!request()->has($this->parameter)) {
+        if (! request()->has($this->parameter)) {
             return $next($passable);
         }
 
@@ -53,6 +53,7 @@ abstract class Filter
                     }
                 }
             });
+
             return $builder;
         }
 
@@ -74,11 +75,12 @@ abstract class Filter
             $params = array_map(function ($param) {
                 return '%'.$param.'%';
             }, $params);
+
             return $params;
         }
 
         return $this->operator == 'LIKE' || $this->operator == 'like'
-            ? "%".$params."%"
+            ? '%'.$params.'%'
             : $params;
     }
 }
