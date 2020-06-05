@@ -55,5 +55,4 @@ class RequestParameterTest extends TestCase
         $requestParam = new RequestParameter('loremipsumdolor');
         $this->assertEquals('%loremipsumdolor%', $requestParam->toLikeFriendly());
     }
-
 }
