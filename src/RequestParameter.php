@@ -46,7 +46,7 @@ final class RequestParameter
      */
     public function isCommaDelimited(): bool
     {
-        if (!is_string($this->params)) {
+        if (! is_string($this->params)) {
             return false;
         }
 
@@ -64,7 +64,7 @@ final class RequestParameter
             return explode(',', $this->params);
         }
 
-        if (!is_array($this->params)) {
+        if (! is_array($this->params)) {
             throw new \RuntimeException('Could not convert to array. Param is neither an array, nor comma-delimited.');
         }
 
@@ -72,13 +72,13 @@ final class RequestParameter
     }
 
     /**
-     * Makes the single value string param like-friendly
+     * Makes the single value string param like-friendly.
      *
      * @return string
      */
     public function toLikeFriendly(): string
     {
-        if (!is_string($this->params)) {
+        if (! is_string($this->params)) {
             throw new \RuntimeException('Could not convert to like-friendly. Param is not a string.');
         }
 
