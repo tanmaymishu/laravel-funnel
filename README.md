@@ -4,6 +4,15 @@ Filtering results based on the query strings/params passed through the URL is on
 
 Laravel Funnel is an attempt to reduce the cognitive burden of stacking and applying the filters.
 
+## Features
+- [x] **Param-Attr binding:** Binds query string _parameters_ to eloquent model _attribute_.
+- [x] **Code generation:** Generates filter classes with a simple command.
+- [x] **Multi-value params:** Makes multi-value parameters painless by allowing comma-delimited list in URL. Example: `http://example.com/posts?title=foo,bar`.
+- [x] **Sorting:** Make your filter "sort-aware" by providing a simple `--clause=orderBy` argument.
+- [x] **Searching:** Make your filter "search-aware" by providing a simple `--operator=like` argument.
+- [x] **Customization:** Logic in filter classes can be overridden according to your need.
+ 
+
 ## Installation
 
 Use the package manager [composer](https://getcomposer.org/) to install laravel-funnel.
@@ -99,12 +108,17 @@ Step 3: From the controller, you may call `$posts = Post::filtered();` to get th
      ];
      ```
  - The final shape of the url: `http://example.com/posts?published=1&sort=desc&q=foobar`
- ### Multi-value GET parameters
- - Laravel Funnel can understand multi-value GET parameters:
+ ### Multi-value GET parameters (`[]` notation)
+ - Funnel can understand multi-value GET parameters:
  `http://example.com/posts?title[]=foo&title[]=bar`. You don't have to take any extra steps for that.
  - As you can see, you will need to append the array notation `[]` to your query parameter's name.
- - Laravel Funnel will pass the parameter values (foo & bar) through the `OR` sub-queries.
- - A get request like `http://example.com/posts?title[]=foo&title[]=bar` will indicate that we want to fetch all the posts that has a title _foo_ or _bar_. How the parameter should match (exactly, or partially), depends on the `--operator` you've used during the filter creation. If you've used `like`, the parameter will match partially.
+ - Funnel will pass the parameter values (foo & bar) through the `OR` sub-queries.
+ - A get request like `http://example.com/posts?title[]=foo&title[]=bar` will indicate that we want to fetch all the posts that has a title _foo_ or _bar_. 
+ ### Multi-value GET parameters (`,` notation)
+ - In addition to the `[]` notation, Funnel provides an easier, alternative comma (`,`) syntax for multi-value parameters: `http://example.com/posts?title=foo,bar`
+ - The advantage is that you don't have to keep repeating `param[]` for each value.
+
+_Note: Multi-value parameters do not work with the LIKE operator_
  ### Customization
  - If the generated `apply()` method of the filter class doesn't cover your need, you can always implement your own `apply()` method but it should match the signature of the parent class.
  

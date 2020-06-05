@@ -5,7 +5,8 @@ namespace TanmayMishu\Tests\Models;
 use Illuminate\Database\Eloquent\Model;
 use TanmayMishu\LaravelFunnel\HasFilters;
 use TanmayMishu\Tests\Filters\Published;
-use TanmayMishu\Tests\Filters\Search;
+use TanmayMishu\Tests\Filters\TitleMatch;
+use TanmayMishu\Tests\Filters\TitleSearch;
 
 class Post extends Model
 {
@@ -15,6 +16,7 @@ class Post extends Model
 
     protected $filters = [
         Published::class,
-        Search::class,
+        TitleSearch::class,
+        TitleMatch::class,
     ];
 }

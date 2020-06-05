@@ -5,12 +5,12 @@ namespace TanmayMishu\Tests\Filters;
 use Illuminate\Database\Eloquent\Builder;
 use TanmayMishu\LaravelFunnel\Filter;
 
-class Search extends Filter
+class TitleSearch extends Filter
 {
     /**
      * @var string
      */
-    protected $parameter = 'title';
+    protected $parameter = 'search';
 
     /**
      * @var string
