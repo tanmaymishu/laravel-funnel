@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Builder;
 abstract class Filter
 {
     /**
+     * @var RequestParameter
+     */
+    protected $requestParam;
+
+    /**
      * Execute the pipe.
      *
      * @param $passable
@@ -15,7 +20,7 @@ abstract class Filter
      */
     public function handle($passable, \Closure $next)
     {
-        if (! request()->has($this->parameter)) {
+        if (!request()->has($this->parameter)) {
             return $next($passable);
         }
 
@@ -61,26 +66,38 @@ abstract class Filter
     }
 
     /**
-     * Get the parameter's value. If the parameter is an array
-     * and the operator is like/LIKE, then surround the values
-     * with `%` and return the modified array.
+     * Get the parameter's value. If the the operator is like/LIKE
+     * then surround the value with `%` and if the parameter is an
+     * array or comma-delimited list, then convert it to array.
      *
      * @return string|array
      */
     protected function getParamValue()
     {
-        $params = request($this->parameter);
+        $this->requestParam = new RequestParameter(request($this->parameter));
 
-        if (is_array($params) && ($this->operator == 'LIKE' || $this->operator == 'like')) {
-            $params = array_map(function ($param) {
-                return '%'.$param.'%';
-            }, $params);
-
-            return $params;
+        if ($this->expectsSearch() && $this->requestParam->isArray()) {
+            throw new \InvalidArgumentException('Could not resolve value. Arrays do not work with the LIKE operator.');
         }
 
-        return $this->operator == 'LIKE' || $this->operator == 'like'
-            ? '%'.$params.'%'
-            : $params;
+        if ($this->expectsSearch()) {
+            return $this->requestParam->toLikeFriendly();
+        }
+
+        if ($this->requestParam->isMultiValue()) {
+            return $this->requestParam->toArray();
+        }
+
+        return $this->requestParam->params;
+    }
+
+    /**
+     * Checks whether the operator is a LIKE operator.
+     *
+     * @return bool
+     */
+    protected function expectsSearch(): bool
+    {
+        return $this->operator == 'LIKE' || $this->operator == 'like';
     }
 }
