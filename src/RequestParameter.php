@@ -84,4 +84,20 @@ final class RequestParameter
 
         return '%'.$this->params.'%';
     }
+
+    /**
+     * Map the array to like-friendly array.
+     *
+     * @return array
+     */
+    public function mapToLikeFriendly(): array
+    {
+        if (! $this->isArray()) {
+            throw new \RuntimeException('Could not map non-array element to array.');
+        }
+
+        return array_map(function ($param) {
+            return '%'.$param.'%';
+        }, $this->params);
+    }
 }

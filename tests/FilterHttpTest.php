@@ -52,24 +52,27 @@ class FilterHttpTest extends TestCase
             ->assertJson(['posts' => [$this->postC->toArray()]]);
     }
 
-    public function testFilterWithLikeOperatorAndArrayValuesThrowsException()
+    public function testFilterWithLikeOperatorAndArrayValuesCanBeSearched()
     {
-        $this->getJson('/posts?search[]=lorem&search[]=ipsum')
-            ->assertJson(['exception' => 'InvalidArgumentException']);
+        $this->getJson('/posts?search[]=lorem, ipsum&search[]=ipsum')
+            ->assertJson(['posts' => [$this->postB->toArray(), $this->postC->toArray()]]);
     }
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->postA = Post::create([
             'title' => 'lorem',
             'body'  => $this->faker->paragraph,
         ]);
+
         $this->postB = Post::create([
             'title'        => 'ipsum',
             'body'         => $this->faker->paragraph,
             'is_published' => 0,
         ]);
+
         $this->postC = Post::create([
             'title' => 'lorem, ipsum',
             'body'  => $this->faker->paragraph,

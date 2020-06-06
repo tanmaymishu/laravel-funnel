@@ -77,7 +77,7 @@ abstract class Filter
         $this->requestParam = new RequestParameter(request($this->parameter));
 
         if ($this->expectsSearch() && $this->requestParam->isArray()) {
-            throw new \InvalidArgumentException('Could not resolve value. Arrays do not work with the LIKE operator.');
+            return $this->requestParam->mapToLikeFriendly();
         }
 
         if ($this->expectsSearch()) {
