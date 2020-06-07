@@ -73,9 +73,10 @@ abstract class Filter
      * @param  RequestParameter  $requestParam
      * @return Filter
      */
-    protected function setRequestParam(RequestParameter $requestParam): Filter
+    protected function setRequestParam(RequestParameter $requestParam): self
     {
         $this->requestParam = $requestParam;
+
         return $this;
     }
 
@@ -156,6 +157,7 @@ abstract class Filter
                         : $this->buildMultiValueQuery($value, true);
                 });
             });
+
             return $builder;
         }
 
@@ -204,9 +206,10 @@ abstract class Filter
      * @param  Builder  $builder
      * @return Filter
      */
-    protected function setBuilder(Builder $builder): Filter
+    protected function setBuilder(Builder $builder): self
     {
         $this->builder = $builder;
+
         return $this;
     }
 
@@ -262,9 +265,10 @@ abstract class Filter
      * @param  string  $attribute
      * @return Filter
      */
-    protected function setAttribute(string $attribute): Filter
+    protected function setAttribute(string $attribute): self
     {
         $this->attribute = $attribute;
+
         return $this;
     }
 
@@ -280,6 +284,7 @@ abstract class Filter
         }
 
         $exploded = explode('.', $this->attribute);
+
         return $exploded[count($exploded) - 1];
     }
 }
