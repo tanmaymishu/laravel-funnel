@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 ### Removed
 - N/A
+## [v0.1.4] - 2020-06-07
+### Added
+- Binding for related model's attribute
+### Changed
+- Refactor base Filter class
+### Removed
+- N/A
 ## [v0.1.3] - 2020-06-05
 ### Added
 - Support for comma-delimited multi-valued GET params.

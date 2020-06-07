@@ -8,11 +8,11 @@ Laravel Funnel is an attempt to reduce the cognitive burden of stacking and appl
 - [x] **Param-Attr binding:** Binds query string _parameters_ to eloquent model _attribute_.
 - [x] **Code generation:** Generates filter classes with a simple command.
 - [x] **Multi-value params:** Makes multi-value parameters painless by allowing comma-delimited list in URL. Example: `http://example.com/posts?title=foo,bar`.
-- [x] **Sorting:** Make your filter "sort-aware" by providing a simple `--clause=orderBy` argument.
-- [x] **Searching:** Make your filter "search-aware" by providing a simple `--operator=like` argument.
+- [x] **Sorting:** Makes your filter "sort-aware" by providing a simple `--clause=orderBy` argument.
+- [x] **Searching:** Makes your filter "search-aware" by providing a simple `--operator=like` argument.
+- [x] **Related model's attr binding:** Binds attribute from a relation easily: `--attribute=comments.replies.body`
 - [x] **Customization:** Logic in filter classes can be overridden according to your need.
  
-
 ## Installation
 
 Use the package manager [composer](https://getcomposer.org/) to install laravel-funnel.
@@ -83,12 +83,12 @@ Step 3: From the controller, you may call `$posts = Post::filtered();` to get th
     -c, --clause[=CLAUSE]        The clause for the query (e.g. where, orderBy, groupBy). Default: where
     ```
 - The `funnel:filter` command takes 1 _argument_ (the name of the filter class) and 4 _options_:
-    1) Attribute (-a) of the model. If this option is not passed, the attribute will be the snake_cased version of the filter class name that was passed as the argument.
-    2) Parameter (-p) or the query string name. Similar to the attribute, it will also use the snake_cased class name as default value, if no `-p` option is provided. 
-    3) The operator (-o) for the where clause. The default is the basic `=` operator.
-    4) The clause (-c), in case `where` doesn't suit your need.
+    1) Attribute (`--attribute` or, `-a`) of the model. If this option is not passed, the attribute will be the snake_cased version of the filter class name that was passed as the argument.
+    2) Parameter (`--parameter` or, `-p`) or the query string parameter's name. Similar to the attribute, it will also use the snake_cased class name as default value, if no `-p` option is provided. 
+    3) The operator (`--operator` or, `-o`) for the where clause. The default is the basic `=` operator.
+    4) The clause (`--clause` or, `-c`), in case `where` doesn't suit your need.
 - Now continuing with the previous example, in addition to filtering published posts, you might also want to sort the posts based on the `title` of the posts.
-- Run `php artisan funnel:filter Sort -c orderBy -a title` to create a new filter. It has two options, the `-c` option takes the clause you wish to use instead of `where`. In the case of sorting, it's most likely `orderBy`. If no `-c` is passed, `where` is the default. You should also specify on which attribute of your model you would like the sort to be applied, using the `-a` option. 
+- Run `php artisan funnel:filter Sort --clause=orderBy --attribute=title` to create a new filter. It has two options, the `-c` option takes the clause you wish to use instead of `where`. In the case of sorting, it's most likely `orderBy`. If no `-c` is passed, `where` is the default. You should also specify on which attribute of your model you would like the sort to be applied, using the `-a` option. 
 - Next, you just have to add the Sort filter to the `$filters` array of the `Post` model:
     ```php
     protected $filters = [
@@ -117,12 +117,16 @@ Step 3: From the controller, you may call `$posts = Post::filtered();` to get th
  ### Multi-value GET parameters (`,` notation)
  - In addition to the `[]` notation, Funnel provides an easier, alternative comma (`,`) syntax for multi-value parameters: `http://example.com/posts?title=foo,bar`
  - The advantage is that you don't have to keep repeating `param[]` for each value.
+ ### Binding related model's attribute
+ - The attribute doesn't necessarily have to reside in the model being queried. If you're in a situation where you want to filter all the posts with the comment body "Foo", assuming your Post model has a `comments()` relationship, you should pass the `--attribute=comments.body` option:
+    - Example Command: `php artisan funnel:filter Comment --attribute=comments.body`. Funnel will filter all the posts with the specified comment body even though the `body` attribute lives in the `Comment` model and not in the `Post` model.
+    - Example URL: `http://example.com/posts?comment=Foo` 
+ - Even nested related model's attribute can be bound. If we want to fetch all the posts that have the reply body `Bar` in the comments, we can achieve that.
+    - Example Command: `php artisan funnel:filter Reply --attribute=comments.replies.body`
+    - Example URL: `http://example.com/posts?reply=Bar` 
 
-_Note: Multi-value parameters do not work with the LIKE operator_
  ### Customization
  - If the generated `apply()` method of the filter class doesn't cover your need, you can always implement your own `apply()` method but it should match the signature of the parent class.
- 
-
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
