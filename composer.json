@@ -1,6 +1,6 @@
 {
     "name": "tanmaymishu/laravel-funnel",
-    "description": "Generate and bind query filters.",
+    "description": "Bind http query string parameters to Eloquent model attributes.",
     "type": "library",
     "license": "MIT",
     "authors": [

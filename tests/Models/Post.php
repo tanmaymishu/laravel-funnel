@@ -7,6 +7,8 @@ use TanmayMishu\LaravelFunnel\HasFilters;
 use TanmayMishu\Tests\Filters\Published;
 use TanmayMishu\Tests\Filters\TitleMatch;
 use TanmayMishu\Tests\Filters\TitleSearch;
+use TanmayMishu\Tests\Filters\Comment;
+use TanmayMishu\Tests\Filters\Reply;
 
 class Post extends Model
 {
@@ -18,5 +20,12 @@ class Post extends Model
         Published::class,
         TitleSearch::class,
         TitleMatch::class,
+        Comment::class,
+        Reply::class,
     ];
+
+    public function comments()
+    {
+        return $this->hasMany(\TanmayMishu\Tests\Models\Comment::class);
+    }
 }

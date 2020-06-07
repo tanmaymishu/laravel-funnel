@@ -7,9 +7,39 @@ use Illuminate\Database\Eloquent\Builder;
 abstract class Filter
 {
     /**
+     * @var string
+     */
+    protected $parameter;
+
+    /**
+     * @var string
+     */
+    protected $attribute;
+
+    /**
+     * @var string
+     */
+    protected $operator;
+
+    /**
      * @var RequestParameter
      */
     protected $requestParam;
+
+    /**
+     * @var string|array
+     */
+    protected $paramValue;
+
+    /**
+     * @var string
+     */
+    protected $relation;
+
+    /**
+     * @var Builder
+     */
+    protected $builder;
 
     /**
      * Execute the pipe.
@@ -38,31 +68,98 @@ abstract class Filter
     abstract protected function apply(Builder $builder): Builder;
 
     /**
-     * Get the default builder for a typical where clause. For multi-value
-     * params, param values will be passed through `OR` sub-queries.
+     * Set the request parameter.
+     *
+     * @param  RequestParameter  $requestParam
+     * @return Filter
+     */
+    protected function setRequestParam(RequestParameter $requestParam): Filter
+    {
+        $this->requestParam = $requestParam;
+        return $this;
+    }
+
+    /**
+     * Get the default builder for a typical where clause. For relational
+     * attr, query will run inside a `whereHas()` method.
      *
      * @param  Builder  $builder
      * @return Builder
      */
     protected function getDefaultWhereBuilder(Builder $builder): Builder
     {
-        $paramValue = $this->getParamValue();
-
-        if (is_array($paramValue)) {
-            $builder = $builder->where(function ($q) use ($paramValue) {
-                for ($i = 0; $i < count($paramValue); $i++) {
-                    if ($i == 0) {
-                        $q->where($this->attribute, $this->operator, $paramValue[$i]);
-                    } else {
-                        $q->orWhere($this->attribute, $this->operator, $paramValue[$i]);
-                    }
-                }
+        if ($this->hasRelation()) {
+            return $builder->whereHas($this->extractRelation(), function ($builder) {
+                $this->setAttribute($this->extractAttribute())
+                    ->prepareWhereBuilder($builder);
             });
+        }
 
+        return $this->prepareWhereBuilder($builder);
+    }
+
+    /**
+     * Checks whether the attribute contains a relation.
+     *
+     * @return bool
+     */
+    protected function hasRelation(): bool
+    {
+        return $this->relationCount() > 1;
+    }
+
+    /**
+     * Get the number of relations (dot separated).
+     *
+     * @return int
+     */
+    protected function relationCount(): int
+    {
+        return count(explode('.', $this->attribute));
+    }
+
+    /**
+     * Get the relation in string.
+     *
+     * @return string
+     */
+    protected function extractRelation(): string
+    {
+        if (! $this->hasRelation()) {
+            throw new \RuntimeException('Trying to extract relation from non-relation string.');
+        }
+
+        $exploded = explode('.', $this->attribute);
+
+        return implode('.', array_slice(
+            $exploded, 0, count($exploded) - 1, true
+        ));
+    }
+
+    /**
+     * Prepare the where builder for a typical where clause. For multi-value
+     * params, param values will be passed through `OR` sub-queries.
+     *
+     * @param  Builder  $builder
+     * @return Builder
+     */
+    protected function prepareWhereBuilder(Builder $builder): Builder
+    {
+        $this->paramValue = $this->getParamValue();
+
+        if (is_array($this->paramValue)) {
+            $builder = $builder->where(function ($subBuilder) {
+                $this->setBuilder($subBuilder);
+                collect($this->paramValue)->each(function ($value, $index) {
+                    $index == 0
+                        ? $this->buildMultiValueQuery($value)
+                        : $this->buildMultiValueQuery($value, true);
+                });
+            });
             return $builder;
         }
 
-        return $builder->where($this->attribute, $this->operator, $paramValue);
+        return $this->setBuilder($builder)->buildSingleValueQuery();
     }
 
     /**
@@ -74,7 +171,7 @@ abstract class Filter
      */
     protected function getParamValue()
     {
-        $this->requestParam = new RequestParameter(request($this->parameter));
+        $this->setRequestParam(new RequestParameter(request($this->parameter)));
 
         if ($this->expectsSearch() && $this->requestParam->isArray()) {
             return $this->requestParam->mapToLikeFriendly();
@@ -98,6 +195,91 @@ abstract class Filter
      */
     protected function expectsSearch(): bool
     {
-        return $this->operator == 'LIKE' || $this->operator == 'like';
+        return strtolower($this->operator) == 'like';
+    }
+
+    /**
+     * Set the builder.
+     *
+     * @param  Builder  $builder
+     * @return Filter
+     */
+    protected function setBuilder(Builder $builder): Filter
+    {
+        $this->builder = $builder;
+        return $this;
+    }
+
+    /**
+     * Build query when paramValue is an array.
+     *
+     * @param $value
+     * @param  bool  $forOr
+     * @return Builder
+     */
+    protected function buildMultiValueQuery($value, bool $forOr = false): Builder
+    {
+        return $forOr ? $this->buildOrWhereQuery($value) : $this->buildWhereQuery($value);
+    }
+
+    /**
+     * Build orWhere query. If no $value is passed, paramValue
+     * is used as default.
+     *
+     * @param  string|null  $value
+     * @return Builder
+     */
+    protected function buildOrWhereQuery(string $value = null): Builder
+    {
+        return $this->builder->orWhere($this->attribute, $this->operator, $value ?: $this->paramValue);
+    }
+
+    /**
+     * Build where query. If no $value is passed, paramValue
+     * is used as default.
+     *
+     * @param  string|null  $value
+     * @return Builder
+     */
+    protected function buildWhereQuery(string $value = null): Builder
+    {
+        return $this->builder->where($this->attribute, $this->operator, $value ?: $this->paramValue);
+    }
+
+    /**
+     * Build where query when paramValue is non-array.
+     *
+     * @return Builder
+     */
+    protected function buildSingleValueQuery(): Builder
+    {
+        return $this->buildWhereQuery();
+    }
+
+    /**
+     * Set the attribute.
+     *
+     * @param  string  $attribute
+     * @return Filter
+     */
+    protected function setAttribute(string $attribute): Filter
+    {
+        $this->attribute = $attribute;
+        return $this;
+    }
+
+    /**
+     * Isolate and extract the attribute from relation.
+     *
+     * @return string
+     */
+    protected function extractAttribute(): string
+    {
+        if (! $this->hasRelation()) {
+            throw new \RuntimeException('Trying to extract attribute from non-relation string.');
+        }
+
+        $exploded = explode('.', $this->attribute);
+        return $exploded[count($exploded) - 1];
     }
 }
