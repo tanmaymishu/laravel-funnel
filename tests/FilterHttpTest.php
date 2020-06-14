@@ -52,6 +52,12 @@ class FilterHttpTest extends TestCase
             ->assertJson(['posts' => [$this->postC->toArray()]]);
     }
 
+    public function testParamValueMayContainEmptyStringAndCanBeSearched()
+    {
+        $this->getJson('/posts?search=')
+            ->assertJson(['posts' => [$this->postA->toArray(), $this->postB->toArray(), $this->postC->toArray()]]);
+    }
+
     public function testFilterWithLikeOperatorAndArrayValuesCanBeSearched()
     {
         $this->getJson('/posts?search[]=lorem, ipsum&search[]=ipsum')

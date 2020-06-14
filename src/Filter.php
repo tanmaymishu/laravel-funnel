@@ -45,7 +45,7 @@ abstract class Filter
      */
     public function handle($passable, \Closure $next)
     {
-        if (! request()->has($this->parameter)) {
+        if (! request()->filled($this->parameter)) {
             return $next($passable);
         }
 
