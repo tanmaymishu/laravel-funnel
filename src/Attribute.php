@@ -73,9 +73,10 @@ final class Attribute
      * @param  string  $name
      * @return Attribute
      */
-    public function setName(string $name): Attribute
+    public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 

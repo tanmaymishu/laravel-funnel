@@ -164,7 +164,7 @@ abstract class Filter
     }
 
     /**
-     * Proxy for Attribute::extractRelation
+     * Proxy for Attribute::extractRelation.
      *
      * @return string
      */
