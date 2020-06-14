@@ -79,9 +79,10 @@ final class Parameter
      * @param  bool  $searchable
      * @return Parameter
      */
-    public function setSearchable(bool $searchable): Parameter
+    public function setSearchable(bool $searchable): self
     {
         $this->searchable = $searchable;
+
         return $this;
     }
 
@@ -208,6 +209,7 @@ final class Parameter
     public function setRawValue($rawValue)
     {
         $this->rawValue = $rawValue;
+
         return $this;
     }
 
@@ -227,9 +229,10 @@ final class Parameter
      * @param  string  $name
      * @return Parameter
      */
-    public function setName(string $name): Parameter
+    public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 }
