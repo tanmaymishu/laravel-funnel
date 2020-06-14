@@ -22,24 +22,19 @@ abstract class Filter
     protected $operator;
 
     /**
-     * @var RequestParameter
+     * @var Parameter
      */
-    protected $requestParam;
+    private $mParameter;
 
     /**
-     * @var string|array
+     * @var Attribute
      */
-    protected $paramValue;
-
-    /**
-     * @var string
-     */
-    protected $relation;
+    private $mAttribute;
 
     /**
      * @var Builder
      */
-    protected $builder;
+    private $builder;
 
     /**
      * Execute the pipe.
@@ -50,13 +45,13 @@ abstract class Filter
      */
     public function handle($passable, \Closure $next)
     {
-        if (! request()->has($this->parameter)) {
+        if (! request()->filled($this->parameter)) {
             return $next($passable);
         }
 
-        $builder = $next($passable);
+        $this->builder = $next($passable);
 
-        return $this->apply($builder);
+        return $this->apply($this->builder);
     }
 
     /**
@@ -68,136 +63,36 @@ abstract class Filter
     abstract protected function apply(Builder $builder): Builder;
 
     /**
-     * Set the request parameter.
+     * Get the attribute.
      *
-     * @param  RequestParameter  $requestParam
-     * @return Filter
+     * @return Attribute
      */
-    protected function setRequestParam(RequestParameter $requestParam): self
+    protected function getAttribute(): Attribute
     {
-        $this->requestParam = $requestParam;
+        return $this->mAttribute;
+    }
+
+    /**
+     * Set the attribute.
+     *
+     * @param  Attribute  $mAttribute
+     * @return $this
+     */
+    protected function setAttribute(Attribute $mAttribute)
+    {
+        $this->mAttribute = $mAttribute;
 
         return $this;
     }
 
     /**
-     * Get the default builder for a typical where clause. For relational
-     * attr, query will run inside a `whereHas()` method.
+     * Get current builder.
      *
-     * @param  Builder  $builder
      * @return Builder
      */
-    protected function getDefaultWhereBuilder(Builder $builder): Builder
+    protected function getBuilder(): Builder
     {
-        if ($this->hasRelation()) {
-            return $builder->whereHas($this->extractRelation(), function ($builder) {
-                $this->setAttribute($this->extractAttribute())
-                    ->prepareWhereBuilder($builder);
-            });
-        }
-
-        return $this->prepareWhereBuilder($builder);
-    }
-
-    /**
-     * Checks whether the attribute contains a relation.
-     *
-     * @return bool
-     */
-    protected function hasRelation(): bool
-    {
-        return $this->relationCount() > 1;
-    }
-
-    /**
-     * Get the number of relations (dot separated).
-     *
-     * @return int
-     */
-    protected function relationCount(): int
-    {
-        return count(explode('.', $this->attribute));
-    }
-
-    /**
-     * Get the relation in string.
-     *
-     * @return string
-     */
-    protected function extractRelation(): string
-    {
-        if (! $this->hasRelation()) {
-            throw new \RuntimeException('Trying to extract relation from non-relation string.');
-        }
-
-        $exploded = explode('.', $this->attribute);
-
-        return implode('.', array_slice(
-            $exploded, 0, count($exploded) - 1, true
-        ));
-    }
-
-    /**
-     * Prepare the where builder for a typical where clause. For multi-value
-     * params, param values will be passed through `OR` sub-queries.
-     *
-     * @param  Builder  $builder
-     * @return Builder
-     */
-    protected function prepareWhereBuilder(Builder $builder): Builder
-    {
-        $this->paramValue = $this->getParamValue();
-
-        if (is_array($this->paramValue)) {
-            $builder = $builder->where(function ($subBuilder) {
-                $this->setBuilder($subBuilder);
-                collect($this->paramValue)->each(function ($value, $index) {
-                    $index == 0
-                        ? $this->buildMultiValueQuery($value)
-                        : $this->buildMultiValueQuery($value, true);
-                });
-            });
-
-            return $builder;
-        }
-
-        return $this->setBuilder($builder)->buildSingleValueQuery();
-    }
-
-    /**
-     * Get the parameter's value. If the the operator is like/LIKE
-     * then surround the value with `%` and if the parameter is an
-     * array or comma-delimited list, then convert it to array.
-     *
-     * @return string|array
-     */
-    protected function getParamValue()
-    {
-        $this->setRequestParam(new RequestParameter(request($this->parameter)));
-
-        if ($this->expectsSearch() && $this->requestParam->isArray()) {
-            return $this->requestParam->mapToLikeFriendly();
-        }
-
-        if ($this->expectsSearch()) {
-            return $this->requestParam->toLikeFriendly();
-        }
-
-        if ($this->requestParam->isMultiValue()) {
-            return $this->requestParam->toArray();
-        }
-
-        return $this->requestParam->params;
-    }
-
-    /**
-     * Checks whether the operator is a LIKE operator.
-     *
-     * @return bool
-     */
-    protected function expectsSearch(): bool
-    {
-        return strtolower($this->operator) == 'like';
+        return $this->builder;
     }
 
     /**
@@ -214,77 +109,204 @@ abstract class Filter
     }
 
     /**
-     * Build query when paramValue is an array.
+     * Get the parameter.
      *
-     * @param $value
-     * @param  bool  $forOr
-     * @return Builder
+     * @return Parameter
      */
-    protected function buildMultiValueQuery($value, bool $forOr = false): Builder
+    protected function getParameter(): Parameter
     {
-        return $forOr ? $this->buildOrWhereQuery($value) : $this->buildWhereQuery($value);
+        return $this->mParameter;
     }
 
     /**
-     * Build orWhere query. If no $value is passed, paramValue
-     * is used as default.
+     * Set the request parameter.
      *
-     * @param  string|null  $value
-     * @return Builder
-     */
-    protected function buildOrWhereQuery(string $value = null): Builder
-    {
-        return $this->builder->orWhere($this->attribute, $this->operator, $value ?: $this->paramValue);
-    }
-
-    /**
-     * Build where query. If no $value is passed, paramValue
-     * is used as default.
-     *
-     * @param  string|null  $value
-     * @return Builder
-     */
-    protected function buildWhereQuery(string $value = null): Builder
-    {
-        return $this->builder->where($this->attribute, $this->operator, $value ?: $this->paramValue);
-    }
-
-    /**
-     * Build where query when paramValue is non-array.
-     *
-     * @return Builder
-     */
-    protected function buildSingleValueQuery(): Builder
-    {
-        return $this->buildWhereQuery();
-    }
-
-    /**
-     * Set the attribute.
-     *
-     * @param  string  $attribute
+     * @param  Parameter  $mParameter
      * @return Filter
      */
-    protected function setAttribute(string $attribute): self
+    protected function setParameter(Parameter $mParameter): self
     {
-        $this->attribute = $attribute;
+        $this->mParameter = $mParameter;
 
         return $this;
     }
 
     /**
-     * Isolate and extract the attribute from relation.
+     * Get the default builder for a typical where clause. For relational
+     * attr, query will run inside a `whereHas()` method.
+     *
+     * @param  Builder  $builder
+     * @return Builder
+     */
+    protected function getDefaultWhereBuilder(Builder $builder): Builder
+    {
+        if ($this->hasRelation()) {
+            return $builder->whereHas($this->extractRelation(), function ($builder) {
+                $this->prepareWhereBuilder($builder);
+            });
+        }
+
+        return $this->prepareWhereBuilder($builder);
+    }
+
+    /**
+     * Check whether the attribute contains a relation.
+     *
+     * @return bool
+     */
+    protected function hasRelation(): bool
+    {
+        if (! $this->mAttribute) {
+            $this->setAttribute(new Attribute($this->attribute));
+        }
+
+        return $this->mAttribute->hasRelation();
+    }
+
+    /**
+     * Proxy for Attribute::extractRelation.
+     *
+     * @return string
+     */
+    protected function extractRelation(): string
+    {
+        return $this->mAttribute->extractRelation();
+    }
+
+    /**
+     * Prepare the where builder for a typical where clause. For multi-value
+     * params, param values will be passed through `OR` sub-queries.
+     *
+     * @param  Builder  $builder
+     * @return Builder
+     */
+    protected function prepareWhereBuilder(Builder $builder): Builder
+    {
+        if (is_array($this->getParamValue())) {
+            return $builder->where(function ($subBuilder) {
+                $this->setBuilder($subBuilder)->buildForMultiValue();
+            });
+        }
+
+        return $this->setBuilder($builder)->buildForSingleValue();
+    }
+
+    /**
+     * Get the parameter's value.
+     *
+     * @return array|string
+     */
+    protected function getParamValue()
+    {
+        if (! $this->mParameter) {
+            $this->setParameter(new Parameter($this->parameter, $this->isSearchable()));
+        }
+
+        return $this->mParameter->getValue();
+    }
+
+    /**
+     * Check whether the operator is a LIKE operator.
+     *
+     * @return bool
+     */
+    protected function isSearchable(): bool
+    {
+        return strtolower($this->operator) == 'like';
+    }
+
+    /**
+     * Iterate over the parameter value and append the
+     * WHERE clauses.
+     *
+     * @return void
+     */
+    protected function buildForMultiValue(): void
+    {
+        collect($this->getParamValue())->each(function ($value, $index) {
+            $index == 0
+                ? $this->buildMultiValueClause($value)
+                : $this->buildMultiValueClause($value, true);
+        });
+    }
+
+    /**
+     * Build query when parameter value is an array.
+     *
+     * @param $value
+     * @param  bool  $forOr
+     * @return Builder
+     */
+    protected function buildMultiValueClause($value, bool $forOr = false): Builder
+    {
+        return $forOr ? $this->buildOrWhereClause($value) : $this->buildWhereClause($value);
+    }
+
+    /**
+     * Build orWhere query. If no $value is passed, normalized
+     * value is used as default.
+     *
+     * @param  string|null  $value
+     * @return Builder
+     */
+    protected function buildOrWhereClause(string $value = null): Builder
+    {
+        return $this->builder->orWhere($this->getAttrName(), $this->operator, $value ?: $this->getParamValue());
+    }
+
+    /**
+     * Get the attribute's name.
+     *
+     * @return string
+     */
+    protected function getAttrName()
+    {
+        if (! $this->mAttribute) {
+            $this->setAttribute(new Attribute($this->attribute));
+        }
+
+        return $this->mAttribute->getName();
+    }
+
+    /**
+     * Build where query. If no $value is passed, normalized
+     * value is used as default.
+     *
+     * @param  string|null  $value
+     * @return Builder
+     */
+    protected function buildWhereClause(string $value = null): Builder
+    {
+        return $this->builder->where($this->getAttrName(), $this->operator, $value ?: $this->getParamValue());
+    }
+
+    /**
+     * Build where query when paramValue is non-array value.
+     *
+     * @return Builder
+     */
+    protected function buildForSingleValue(): Builder
+    {
+        return $this->buildWhereClause();
+    }
+
+    /**
+     * Proxy for Attribute::relationCount().
+     *
+     * @return int
+     */
+    protected function relationCount(): int
+    {
+        return $this->mAttribute->relationCount();
+    }
+
+    /**
+     * Proxy for Attribute::extractAttribute().
      *
      * @return string
      */
     protected function extractAttribute(): string
     {
-        if (! $this->hasRelation()) {
-            throw new \RuntimeException('Trying to extract attribute from non-relation string.');
-        }
-
-        $exploded = explode('.', $this->attribute);
-
-        return $exploded[count($exploded) - 1];
+        return $this->mAttribute->extractAttribute();
     }
 }
