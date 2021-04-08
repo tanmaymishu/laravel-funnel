@@ -76,6 +76,18 @@ class FilterHttpTest extends TestCase
             ->assertJson(['posts' => [$this->postA->toArray()]]);
     }
 
+    public function testFilterEagerLoadQueryString()
+    {
+        $this->getJson('/posts?with=comments,replies')
+            ->assertJson(['posts' => [$this->postA->load(['comments', 'replies'])->toArray()]]);
+    }
+
+    public function testFilterEagerLoadQueryStringThrows422WhenRelationDoesntExist()
+    {
+        $this->getJson('/posts?with=comments,comments.bar,replies')
+            ->assertStatus(422);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -86,7 +98,7 @@ class FilterHttpTest extends TestCase
         ]);
 
         $comment = $this->postA->comments()->create(['body' => 'I am a comment']);
-        $comment->replies()->create(['body' => 'I am a reply']);
+        $comment->replies()->create(['body' => 'I am a reply', 'post_id' => $this->postA->id]);
 
         $this->postB = Post::create([
             'title'        => 'ipsum',

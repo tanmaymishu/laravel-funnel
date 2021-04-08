@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reply extends Model
 {
-    protected $fillable = ['body'];
+    protected $fillable = ['body', 'post_id'];
 }
