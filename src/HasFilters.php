@@ -24,6 +24,7 @@ trait HasFilters
                 if (str_contains($eager, '.')) {
                     return method_exists(static::class, explode('.', $eager)[0]);
                 }
+
                 return method_exists(static::class, $eager);
             })->toArray());
         }
