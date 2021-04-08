@@ -10,6 +10,14 @@ use Symfony\Component\Console\Input\InputOption;
 class FilterCommand extends GeneratorCommand
 {
     /**
+     * Command should halt when attempting to create a filter
+     * that includes any of the names from this array.
+     *
+     * @var string[]
+     */
+    protected $reservedKeywords = [];
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -44,6 +52,25 @@ class FilterCommand extends GeneratorCommand
         } else {
             return __DIR__.'/Stubs/filter-where.stub';
         }
+    }
+
+    public function handle()
+    {
+        $this->reservedKeywords[] = config()->has('funnel')
+            ? config('funnel.eager_key')
+            : 'with';
+
+        if (in_array(strtolower($this->argument('name')), $this->reservedKeywords)) {
+            $this->error('Reserved name. Please provide a different name.');
+            return;
+        }
+
+        if (in_array($this->option('parameter'), $this->reservedKeywords)) {
+            $this->error('Reserved parameter. Please provide a different parameter.');
+            return;
+        }
+
+        return parent::handle();
     }
 
     /**

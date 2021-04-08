@@ -12,6 +12,18 @@ class FilterCommandTest extends TestCase
         $this->withoutMockingConsoleOutput();
     }
 
+    public function testFilterWithReservedNamesCanNotBeCreated()
+    {
+        $this->artisan('funnel:filter With');
+        $this->assertReservedCommand();
+    }
+
+    public function testFilterWithReservedParamsCanNotBeCreated()
+    {
+        $this->artisan('funnel:filter A -p with');
+        $this->assertReservedCommand();
+    }
+
     public function testAFilterCanBeCreated()
     {
         $this->artisan('funnel:filter A');
@@ -46,5 +58,12 @@ class FilterCommandTest extends TestCase
     {
         $output = trim(Artisan::output());
         $this->assertTrue('Filter created successfully.' == $output || 'Filter already exists!' == $output);
+    }
+
+    private function assertReservedCommand()
+    {
+        $output = trim(Artisan::output());
+        $this->assertTrue('Reserved name. Please provide a different name.' == $output
+            || 'Reserved parameter. Please provide a different parameter.' == $output);
     }
 }

@@ -49,6 +49,8 @@ abstract class Filter
             return $next($passable);
         }
 
+        $this->checkParamCollision();
+
         $this->builder = $next($passable);
 
         return $this->apply($this->builder);
@@ -61,6 +63,17 @@ abstract class Filter
      * @return Builder
      */
     abstract protected function apply(Builder $builder): Builder;
+
+    public function checkParamCollision(): void
+    {
+        $eagerKey = config()->has('funnel')
+            ? config('funnel.eager_key')
+            : 'with';
+
+        if ($this->parameter == $eagerKey) {
+            throw new \RuntimeException('Reserved parameter. Please provide a different parameter.');
+        }
+    }
 
     /**
      * Get the attribute.

@@ -28,4 +28,9 @@ class Post extends Model
     {
         return $this->hasMany(\TanmayMishu\Tests\Models\Comment::class);
     }
+
+    public function replies()
+    {
+        return $this->hasMany(\TanmayMishu\Tests\Models\Reply::class);
+    }
 }
