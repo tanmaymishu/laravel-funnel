@@ -11,6 +11,7 @@ Laravel Funnel is an attempt to reduce the cognitive burden of applying and main
 - [x] **Sorting:** Creates "sort-aware" filters with a simple `--clause=orderBy` argument.
 - [x] **Searching:** Creates "search-aware" with a simple `--operator=like` argument.
 - [x] **Related model's attr binding:** Binds attribute from a related model easily with `relation.attribute` format:  `--attribute=comments.body`
+- [x] **Eager-loading:** Funnel comes with eager-loading support out of the box. Pass your relation to the default `?with` query param. Example: `http://example.com/posts?with=comments,categories`.
 - [x] **Customization:** Query logic in generated filter classes can be overridden according to your need.
  
 ## Installation
@@ -148,6 +149,11 @@ Reply::createMany([
  - Even nested related model's attribute can be bound to a parameter. If we want to fetch all the posts that have the reply body `Bar` in the comments, we can achieve that too as long as the relationships exist:
     - Example Command: `php artisan funnel:filter Reply --attribute=comments.replies.body`
     - Example URL: `http://example.com/posts?reply=Bar` 
+
+ ### Eager-loading
+ - Funnel comes with eager-loading support out of the box. Pass your relation to the default `?with` query param. Example: `http://example.com/posts?with=comments,categories`.
+ - If you need to customize the eager key name, which is by default `with`, you can do so from `config/funnel.php`. Before you do so, you need to publish your config files by running the following command:
+`php artisan vendor:publish --provider="TanmayMishu\LaravelFunnel\FunnelServiceProvider"`
 
  ### Customization
  - If the generated `apply()` method of the filter class doesn't fit your need, you can always implement your own `apply()` method but it should match the signature of the parent class.

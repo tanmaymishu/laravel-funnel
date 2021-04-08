@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 ### Removed
 - N/A
+## [v0.2.1] - 2020-04-08
+### Added
+- Allow ability to eager load
+- Add optional getEagerSafe() macro on \Illuminate\Database\Eloquent\Builder class to automatically convert RelationNotFoundException to ValidationException
+### Changed
+- Modify Filter class and check for parameter naming collision.
+### Removed
+- N/A
 ## [v0.2.0] - 2020-06-14
 ### Added
 - Allow empty query string
