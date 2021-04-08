@@ -62,11 +62,13 @@ class FilterCommand extends GeneratorCommand
 
         if (in_array(strtolower($this->argument('name')), $this->reservedKeywords)) {
             $this->error('Reserved name. Please provide a different name.');
+
             return;
         }
 
         if (in_array($this->option('parameter'), $this->reservedKeywords)) {
             $this->error('Reserved parameter. Please provide a different parameter.');
+
             return;
         }
 
