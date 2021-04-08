@@ -2,7 +2,6 @@
 
 namespace TanmayMishu\LaravelFunnel;
 
-use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class Filter
